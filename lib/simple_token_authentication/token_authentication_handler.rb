@@ -29,21 +29,13 @@ module SimpleTokenAuthentication
       private :cache_new_auth
     end
 
-    # This method is a hook and is meant to be overridden.
-    #
-    # It is not expected to return anything special,
-    # only its side effects will be used.
-    def after_successful_token_authentication
-      # intentionally left blank
-    end
-
     def authenticate_entity_from_token!(entity)
       record = find_record_from_identifier(entity)
 
       if cached_auth?(record, entity) || token_correct?(record, entity, token_comparator)
         cache_new_auth(record, entity, true)
         perform_sign_in!(record, sign_in_handler)
-        after_successful_token_authentication
+        after_successful_token_authentication if respond_to?(:after_successful_token_authentication, true)
       else
         cache_new_auth(record, entity, false)
         false
